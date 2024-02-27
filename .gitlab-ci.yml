@@ -1,0 +1,29 @@
+image: python:latest
+
+stages:
+- test
+
+1-prod0:
+  script: python3 test-1-prod0.py
+
+2-next_prod:
+  script: python3 test-2-next_prod.py
+
+3-prod:
+  script: python3 test-3-prod.py
+
+4-remove-non-prod:
+  script: python3 test-4-remove-non-prod.py
+
+5-next_reach:
+  script: python3 test-5-next_reach.py
+
+6-reach:
+  script: python3 test-6-reach.py
+
+7-remove-non-reach:
+  script: python3 test-7-remove-non-reach.py
+
+8-reduce_grammar:
+  script : python3 test-8-reduce_grammar.py
+  
