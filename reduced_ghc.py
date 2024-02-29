@@ -45,18 +45,10 @@ def next_prod(t,r,eqnt,prev):
 def prod(t,r,eqnt):
     # t : symboles terminaux
     # r : liste de productions
-    # eqnt : egalite sur les non terminaux
-    nt=[n for n,_ in r]
-    eq_prod = make_eq_prod(nt, eqnt)
-    prev = prod0(t,r)
-    curr = next_prod(t,r,eqnt, prev)
-
-    while not eq_prod(prev, curr):
-        
-        prev = curr
-        curr = next_prod(t,r,eqnt, prev)
-        
-    return curr
+    # eqnt : egalite sur les non terminaux        
+    def _prod_aux(prev):
+        return next_prod(t , r , eqnt , prev)
+    return fixpoint_from(make_eq_set(eqnt) , _prod_aux , prod0(t,r))
 
 # Elimination des symboles non productifs d'une GHC
 # -------------------------------------------------
@@ -86,7 +78,7 @@ def remove_nt(g,ent):
 
 def remove_non_prod(g):
     # g : ghc
-    (g_nt,g_t,g_r,g_s,eq_atom) = g
+    (_,g_t,g_r,_,eq_atom) = g
     return remove_nt(g, prod(g_t,g_r,eq_atom))
 
 # Symboles accessibles
@@ -109,17 +101,15 @@ def next_reach(nt,r,eqnt,prev):
                             res = ajout(eqnt, j,res)
     return union(eqnt,res,prev)
 
-def reach_aux(e):
-    (nt , r , eqnt , prev) = e
-    return (nt , r , eqnt , next_reach(nt , r , eqnt , prev))
 
 def reach(nt,r,si,eqnt):
     # nt : symboles non terminaux
     # r : liste de productions
     # si : symbole de depart
     # eqnt : egalite sur les non terminaux
-
-    return fixpoint_from(make_eq_set(eqnt) , reach_aux , (nt , r , eqnt , [si]))[-1]
+    def _reach_aux(prev):
+        return next_reach(nt , r , eqnt , prev)
+    return fixpoint_from(make_eq_set(eqnt) , _reach_aux , [si])
 
 
 # Elimination des symboles non accessibles d'une GHC
@@ -135,5 +125,4 @@ def remove_non_reach(g):
 
 def reduce_grammar(g):
     # g : ghc
-    
     return remove_non_reach(remove_non_prod(g))
